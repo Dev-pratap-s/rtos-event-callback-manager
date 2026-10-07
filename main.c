@@ -5,7 +5,6 @@
 #define MAX_CALLBACKS 6
 
 
-
 /* Event types */
 typedef enum
 {
@@ -17,7 +16,8 @@ typedef enum
     LOW_BATTERY
 } EventType;
 
-* Event structure */
+
+/* Event structure */
 typedef struct
 {
     EventType type;
@@ -25,6 +25,11 @@ typedef struct
 } Event;
 
 
+/* Callback function pointer */
+typedef void (*EventCallback)(Event event);
+
+
+/* Callback functions */
 void paymentReceivedCallback(Event event)
 {
     printf("Callback: Payment received: %d\n", event.amount);
@@ -58,7 +63,7 @@ void batteryCallback(Event event)
 }
 
 
-
+/* Event Queue */
 typedef struct
 {
     Event events[QUEUE_SIZE];
@@ -71,8 +76,7 @@ typedef struct
 EventQueue eventQueue;
 
 
-
-
+/* Initialize Queue */
 void initQueue(void)
 {
     eventQueue.front = 0;
@@ -80,16 +84,22 @@ void initQueue(void)
     eventQueue.count = 0;
 }
 
+
+/* Check Queue Empty */
 int isQueueEmpty(void)
 {
     return eventQueue.count == 0;
 }
 
+
+/* Check Queue Full */
 int isQueueFull(void)
 {
     return eventQueue.count == QUEUE_SIZE;
 }
 
+
+/* Push Event */
 int pushEvent(Event event)
 {
     if (isQueueFull())
@@ -108,6 +118,8 @@ int pushEvent(Event event)
     return 1;
 }
 
+
+/* Pop Event */
 int popEvent(Event *event)
 {
     if (isQueueEmpty())
@@ -126,6 +138,7 @@ int popEvent(Event *event)
 }
 
 
+/* Callback Registration */
 typedef struct
 {
     EventType eventType;
@@ -133,9 +146,11 @@ typedef struct
     int registered;
 } CallbackRegistration;
 
+
 CallbackRegistration registrations[MAX_CALLBACKS];
 
 
+/* Find Registration */
 int findRegistration(EventType type)
 {
     for (int i = 0; i < MAX_CALLBACKS; i++)
@@ -151,6 +166,7 @@ int findRegistration(EventType type)
 }
 
 
+/* Register Callback */
 void registerCallback(EventType type, EventCallback callback)
 {
     int index = findRegistration(type);
@@ -178,6 +194,7 @@ void registerCallback(EventType type, EventCallback callback)
 }
 
 
+/* Process Event */
 void processEvent(void)
 {
     Event event;
@@ -201,9 +218,8 @@ void processEvent(void)
     registrations[index].callback(event);
 }
 
-registrations[index].callback(event);
 
-
+/* Get Event Name */
 const char *getEventName(EventType type)
 {
     switch (type)
@@ -231,6 +247,51 @@ const char *getEventName(EventType type)
     }
 }
 
+
+/* Parse Event Type */
+int parseEventType(const char *name, EventType *type)
+{
+    if (strcmp(name, "PAYMENT_RECEIVED") == 0)
+    {
+        *type = PAYMENT_RECEIVED;
+        return 1;
+    }
+
+    if (strcmp(name, "PAYMENT_SUCCESS") == 0)
+    {
+        *type = PAYMENT_SUCCESS;
+        return 1;
+    }
+
+    if (strcmp(name, "PAYMENT_FAILED") == 0)
+    {
+        *type = PAYMENT_FAILED;
+        return 1;
+    }
+
+    if (strcmp(name, "NETWORK_CONNECTED") == 0)
+    {
+        *type = NETWORK_CONNECTED;
+        return 1;
+    }
+
+    if (strcmp(name, "NETWORK_DISCONNECTED") == 0)
+    {
+        *type = NETWORK_DISCONNECTED;
+        return 1;
+    }
+
+    if (strcmp(name, "LOW_BATTERY") == 0)
+    {
+        *type = LOW_BATTERY;
+        return 1;
+    }
+
+    return 0;
+}
+
+
+/* List Events */
 void listEvents(void)
 {
     if (isQueueEmpty())
@@ -261,19 +322,25 @@ void listEvents(void)
     }
 }
 
+
+/* Show Status */
 void showStatus(void)
 {
     printf("\n========== STATUS ==========\n");
 
     printf("Queue size      : %d\n", QUEUE_SIZE);
+
     printf("Events in queue : %d\n",
            eventQueue.count);
+
     printf("Free spaces     : %d\n",
            QUEUE_SIZE - eventQueue.count);
 
     printf("============================\n");
 }
 
+
+/* Parse Callback */
 EventCallback parseCallback(const char *name)
 {
     if (strcmp(name, "paymentReceivedCallback") == 0)
@@ -294,6 +361,8 @@ EventCallback parseCallback(const char *name)
     return NULL;
 }
 
+
+/* Main */
 int main(void)
 {
     char command[20];
@@ -307,15 +376,19 @@ int main(void)
 
     initQueue();
 
+
+    /* Initialize Callback Registrations */
     for (int i = 0; i < MAX_CALLBACKS; i++)
     {
         registrations[i].registered = 0;
         registrations[i].callback = NULL;
     }
 
+
     printf("========================================\n");
     printf("     RTOS Event & Callback Manager\n");
     printf("========================================\n");
+
 
     printf("\nCommands:\n");
     printf("REGISTER <event> <callback>\n");
@@ -325,6 +398,8 @@ int main(void)
     printf("LIST\n");
     printf("EXIT\n\n");
 
+
+    /* Main Command Loop */
     while (1)
     {
         printf("> ");
@@ -333,6 +408,7 @@ int main(void)
         {
             break;
         }
+
 
         /* REGISTER */
         if (strcmp(command, "REGISTER") == 0)
@@ -345,13 +421,16 @@ int main(void)
                 continue;
             }
 
+
             if (!parseEventType(eventName, &eventType))
             {
                 printf("Error: invalid event type\n");
                 continue;
             }
 
+
             callback = parseCallback(callbackName);
+
 
             if (callback == NULL)
             {
@@ -359,8 +438,10 @@ int main(void)
                 continue;
             }
 
+
             registerCallback(eventType, callback);
         }
+
 
         /* PUSH */
         else if (strcmp(command, "PUSH") == 0)
@@ -371,17 +452,21 @@ int main(void)
                 continue;
             }
 
+
             if (!parseEventType(eventName, &eventType))
             {
                 printf("Error: invalid event type\n");
                 continue;
             }
 
+
             Event event;
 
             event.type = eventType;
             event.amount = 0;
 
+
+            /* Payment Events Need Amount */
             if (eventType == PAYMENT_RECEIVED ||
                 eventType == PAYMENT_SUCCESS ||
                 eventType == PAYMENT_FAILED)
@@ -392,14 +477,17 @@ int main(void)
                     continue;
                 }
 
+
                 if (amount <= 0)
                 {
                     printf("Error: amount must be greater than 0\n");
                     continue;
                 }
 
+
                 event.amount = amount;
             }
+
 
             if (pushEvent(event))
             {
@@ -408,11 +496,13 @@ int main(void)
             }
         }
 
+
         /* PROCESS */
         else if (strcmp(command, "PROCESS") == 0)
         {
             processEvent();
         }
+
 
         /* STATUS */
         else if (strcmp(command, "STATUS") == 0)
@@ -420,11 +510,13 @@ int main(void)
             showStatus();
         }
 
+
         /* LIST */
         else if (strcmp(command, "LIST") == 0)
         {
             listEvents();
         }
+
 
         /* EXIT */
         else if (strcmp(command, "EXIT") == 0)
@@ -433,16 +525,14 @@ int main(void)
             break;
         }
 
-        /* UNKNOWN */
+
+        /* UNKNOWN COMMAND */
         else
         {
             printf("Error: unknown command\n");
         }
     }
 
+
     return 0;
 }
-
-
-/* Callback function pointer */
-typedef void (*EventCallback)(Event event);
