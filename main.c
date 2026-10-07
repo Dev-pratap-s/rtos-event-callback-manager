@@ -274,6 +274,25 @@ void showStatus(void)
     printf("============================\n");
 }
 
+EventCallback parseCallback(const char *name)
+{
+    if (strcmp(name, "paymentReceivedCallback") == 0)
+        return paymentReceivedCallback;
+
+    if (strcmp(name, "paymentSuccessCallback") == 0)
+        return paymentSuccessCallback;
+
+    if (strcmp(name, "paymentFailedCallback") == 0)
+        return paymentFailedCallback;
+
+    if (strcmp(name, "networkCallback") == 0)
+        return networkCallback;
+
+    if (strcmp(name, "batteryCallback") == 0)
+        return batteryCallback;
+
+    return NULL;
+}
 
 int main(void)
 {
