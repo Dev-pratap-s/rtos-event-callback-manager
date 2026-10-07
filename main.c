@@ -204,7 +204,62 @@ void processEvent(void)
 registrations[index].callback(event);
 
 
+const char *getEventName(EventType type)
+{
+    switch (type)
+    {
+        case PAYMENT_RECEIVED:
+            return "PAYMENT_RECEIVED";
 
+        case PAYMENT_SUCCESS:
+            return "PAYMENT_SUCCESS";
+
+        case PAYMENT_FAILED:
+            return "PAYMENT_FAILED";
+
+        case NETWORK_CONNECTED:
+            return "NETWORK_CONNECTED";
+
+        case NETWORK_DISCONNECTED:
+            return "NETWORK_DISCONNECTED";
+
+        case LOW_BATTERY:
+            return "LOW_BATTERY";
+
+        default:
+            return "UNKNOWN";
+    }
+}
+
+void listEvents(void)
+{
+    if (isQueueEmpty())
+    {
+        printf("Event queue is empty\n");
+        return;
+    }
+
+    printf("Events in queue:\n");
+
+    for (int i = 0; i < eventQueue.count; i++)
+    {
+        int index =
+            (eventQueue.front + i) % QUEUE_SIZE;
+
+        Event event = eventQueue.events[index];
+
+        printf("%d. %s",
+               i + 1,
+               getEventName(event.type));
+
+        if (event.amount > 0)
+        {
+            printf(" | Amount: %d", event.amount);
+        }
+
+        printf("\n");
+    }
+}
 
 
 
