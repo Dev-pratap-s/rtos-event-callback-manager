@@ -275,7 +275,154 @@ void showStatus(void)
 }
 
 
-main()
+int main(void)
+{
+    char command[20];
+    char eventName[50];
+    char callbackName[50];
+
+    EventType eventType;
+    EventCallback callback;
+
+    int amount;
+
+    initQueue();
+
+    for (int i = 0; i < MAX_CALLBACKS; i++)
+    {
+        registrations[i].registered = 0;
+        registrations[i].callback = NULL;
+    }
+
+    printf("========================================\n");
+    printf("     RTOS Event & Callback Manager\n");
+    printf("========================================\n");
+
+    printf("\nCommands:\n");
+    printf("REGISTER <event> <callback>\n");
+    printf("PUSH <event> [amount]\n");
+    printf("PROCESS\n");
+    printf("STATUS\n");
+    printf("LIST\n");
+    printf("EXIT\n\n");
+
+    while (1)
+    {
+        printf("> ");
+
+        if (scanf("%19s", command) != 1)
+        {
+            break;
+        }
+
+        /* REGISTER */
+        if (strcmp(command, "REGISTER") == 0)
+        {
+            if (scanf("%49s %49s",
+                      eventName,
+                      callbackName) != 2)
+            {
+                printf("Error: invalid REGISTER command\n");
+                continue;
+            }
+
+            if (!parseEventType(eventName, &eventType))
+            {
+                printf("Error: invalid event type\n");
+                continue;
+            }
+
+            callback = parseCallback(callbackName);
+
+            if (callback == NULL)
+            {
+                printf("Error: invalid callback\n");
+                continue;
+            }
+
+            registerCallback(eventType, callback);
+        }
+
+        /* PUSH */
+        else if (strcmp(command, "PUSH") == 0)
+        {
+            if (scanf("%49s", eventName) != 1)
+            {
+                printf("Error: invalid PUSH command\n");
+                continue;
+            }
+
+            if (!parseEventType(eventName, &eventType))
+            {
+                printf("Error: invalid event type\n");
+                continue;
+            }
+
+            Event event;
+
+            event.type = eventType;
+            event.amount = 0;
+
+            if (eventType == PAYMENT_RECEIVED ||
+                eventType == PAYMENT_SUCCESS ||
+                eventType == PAYMENT_FAILED)
+            {
+                if (scanf("%d", &amount) != 1)
+                {
+                    printf("Error: payment event requires amount\n");
+                    continue;
+                }
+
+                if (amount <= 0)
+                {
+                    printf("Error: amount must be greater than 0\n");
+                    continue;
+                }
+
+                event.amount = amount;
+            }
+
+            if (pushEvent(event))
+            {
+                printf("Event pushed: %s\n",
+                       getEventName(event.type));
+            }
+        }
+
+        /* PROCESS */
+        else if (strcmp(command, "PROCESS") == 0)
+        {
+            processEvent();
+        }
+
+        /* STATUS */
+        else if (strcmp(command, "STATUS") == 0)
+        {
+            showStatus();
+        }
+
+        /* LIST */
+        else if (strcmp(command, "LIST") == 0)
+        {
+            listEvents();
+        }
+
+        /* EXIT */
+        else if (strcmp(command, "EXIT") == 0)
+        {
+            printf("Exiting...\n");
+            break;
+        }
+
+        /* UNKNOWN */
+        else
+        {
+            printf("Error: unknown command\n");
+        }
+    }
+
+    return 0;
+}
 
 
 /* Callback function pointer */
