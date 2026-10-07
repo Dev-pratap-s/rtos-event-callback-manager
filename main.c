@@ -261,6 +261,18 @@ void listEvents(void)
     }
 }
 
+void showStatus(void)
+{
+    printf("\n========== STATUS ==========\n");
+
+    printf("Queue size      : %d\n", QUEUE_SIZE);
+    printf("Events in queue : %d\n",
+           eventQueue.count);
+    printf("Free spaces     : %d\n",
+           QUEUE_SIZE - eventQueue.count);
+
+    printf("============================\n");
+}
 
 
 main()
