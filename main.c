@@ -23,3 +23,7 @@ typedef struct
     EventType type;
     int amount;
 } Event;
+
+
+/* Callback function pointer */
+typedef void (*EventCallback)(Event event);
