@@ -126,6 +126,57 @@ int popEvent(Event *event)
 }
 
 
+typedef struct
+{
+    EventType eventType;
+    EventCallback callback;
+    int registered;
+} CallbackRegistration;
+
+CallbackRegistration registrations[MAX_CALLBACKS];
+
+
+int findRegistration(EventType type)
+{
+    for (int i = 0; i < MAX_CALLBACKS; i++)
+    {
+        if (registrations[i].registered &&
+            registrations[i].eventType == type)
+        {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+
+void registerCallback(EventType type, EventCallback callback)
+{
+    int index = findRegistration(type);
+
+    if (index != -1)
+    {
+        printf("Error: callback already registered\n");
+        return;
+    }
+
+    for (int i = 0; i < MAX_CALLBACKS; i++)
+    {
+        if (!registrations[i].registered)
+        {
+            registrations[i].eventType = type;
+            registrations[i].callback = callback;
+            registrations[i].registered = 1;
+
+            printf("Callback registered\n");
+            return;
+        }
+    }
+
+    printf("Error: registration limit reached\n");
+}
+
 
 
 
