@@ -58,5 +58,34 @@ void batteryCallback(Event event)
 }
 
 
+
+typedef struct
+{
+    Event events[QUEUE_SIZE];
+    int front;
+    int rear;
+    int count;
+} EventQueue;
+
+
+EventQueue eventQueue;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+main()
+
+
 /* Callback function pointer */
 typedef void (*EventCallback)(Event event);
