@@ -17,3 +17,9 @@ typedef enum
     LOW_BATTERY
 } EventType;
 
+* Event structure */
+typedef struct
+{
+    EventType type;
+    int amount;
+} Event;
