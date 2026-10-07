@@ -178,7 +178,30 @@ void registerCallback(EventType type, EventCallback callback)
 }
 
 
+void processEvent(void)
+{
+    Event event;
 
+    if (!popEvent(&event))
+    {
+        printf("No events in queue\n");
+        return;
+    }
+
+    int index = findRegistration(event.type);
+
+    if (index == -1)
+    {
+        printf("Error: no callback registered\n");
+        return;
+    }
+
+    printf("Processing event\n");
+
+    registrations[index].callback(event);
+}
+
+registrations[index].callback(event);
 
 
 
