@@ -73,7 +73,57 @@ EventQueue eventQueue;
 
 
 
+void initQueue(void)
+{
+    eventQueue.front = 0;
+    eventQueue.rear = 0;
+    eventQueue.count = 0;
+}
 
+int isQueueEmpty(void)
+{
+    return eventQueue.count == 0;
+}
+
+int isQueueFull(void)
+{
+    return eventQueue.count == QUEUE_SIZE;
+}
+
+int pushEvent(Event event)
+{
+    if (isQueueFull())
+    {
+        printf("Error: event queue is full\n");
+        return 0;
+    }
+
+    eventQueue.events[eventQueue.rear] = event;
+
+    eventQueue.rear =
+        (eventQueue.rear + 1) % QUEUE_SIZE;
+
+    eventQueue.count++;
+
+    return 1;
+}
+
+int popEvent(Event *event)
+{
+    if (isQueueEmpty())
+    {
+        return 0;
+    }
+
+    *event = eventQueue.events[eventQueue.front];
+
+    eventQueue.front =
+        (eventQueue.front + 1) % QUEUE_SIZE;
+
+    eventQueue.count--;
+
+    return 1;
+}
 
 
 
